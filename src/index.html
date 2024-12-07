@@ -8,6 +8,54 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
+  <script>
+    fetch('./assets/config.json')
+      .then((response) => response.json())
+      .then((config) => {
+        const g = {
+          v: "weekly",
+          key: config.googleMapsApiKey
+        };
+  
+        const p = "The Google Maps JavaScript API";
+        const c = "google";
+        const l = "importLibrary";
+        const q = "__ib__";
+        const m = document;
+        const b = window;
+        const d = (b[c] || (b[c] = {})).maps || ((b[c].maps = {}));
+        const r = new Set();
+        const e = new URLSearchParams();
+  
+        const loadScript = () => {
+          if (d[l]) {
+            console.warn(p + " only loads once. Ignoring:", g);
+            return;
+          }
+          d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n));
+        };
+  
+        const u = () =>
+          new Promise((resolve, reject) => {
+            const a = m.createElement("script");
+            e.set("libraries", [...r] + "");
+            for (const k in g) {
+              e.set(k.replace(/[A-Z]/g, (t) => "_" + t[0].toLowerCase()), g[k]);
+            }
+            e.set("callback", c + ".maps." + q);
+            a.src = `https://maps.${c}apis.com/maps/api/js?${e}`;
+            d[q] = resolve;
+            a.onerror = () => reject(Error(p + " could not load."));
+            a.nonce = m.querySelector("script[nonce]")?.nonce || "";
+            m.head.appendChild(a);
+          });
+  
+        loadScript();
+      })
+      .catch((error) => {
+        console.error("Failed to load Google Maps API Key from config.json", error);
+      });
+  </script>
   <app-root></app-root>
 </body>
 </html>
